@@ -80,11 +80,11 @@ const PlanetsProvider = ({ children }) => {
     };
 
     if (numericFilterLength !== 0) {
-      const { newPlanetsList, column } = filterPlanetByNumericValues(data);
+      const { newPlanetsList, column } = filterPlanetByNumericValues(filteredPlanets);
       setColumnEntries(columnEntries.filter((entry) => entry !== column));
       setFilteredPlanets(newPlanetsList);
     }
-  }, [data, numericFilter]);
+  }, [numericFilter]);
 
   return (
     <PlanetsContext.Provider
