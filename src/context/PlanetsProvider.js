@@ -3,12 +3,19 @@ import PropTypes from 'prop-types';
 import PlanetsContext from './PlanetsContext';
 import fetchStarWarsAPI from '../services/getStarWarsAPI';
 
+const COLUMN_ENTRIES_INITIAL_STATE = [
+  'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water',
+];
+
 const PlanetsProvider = ({ children }) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [filteredPlanets, setFilteredPlanets] = useState([]);
   const [nameFilter, setNameFilter] = useState({ filterByName: { name: '' } });
+  // { filterByNumericValues: [{ column, comparison, value }] }
+  // const [numericFilter, setNumericFilter] = useState({ filterByNumericValues: [] });
+  const [columnEntries, setColumnEntries] = useState(COLUMN_ENTRIES_INITIAL_STATE);
 
   useEffect(() => {
     const getPlanets = async () => {
@@ -48,7 +55,7 @@ const PlanetsProvider = ({ children }) => {
 
   return (
     <PlanetsContext.Provider
-      value={ { filteredPlanets, error, loading, setNameFilter } }
+      value={ { filteredPlanets, error, loading, setNameFilter, columnEntries } }
     >
       { children }
     </PlanetsContext.Provider>
