@@ -55,7 +55,7 @@ const Table = () => {
   };
 
   return (
-    <section>
+    <main>
       <table>
         <thead>
           <tr>
@@ -66,7 +66,7 @@ const Table = () => {
           { (filteredPlanets.length > 0) && renderTableRows() }
         </tbody>
       </table>
-    </section>
+    </main>
   );
 };
 
