@@ -8,6 +8,7 @@ const PlanetsProvider = ({ children }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [filteredPlanets, setFilteredPlanets] = useState([]);
+  const [nameFilter, setNameFilter] = useState({ filterByName: { name: '' } });
 
   useEffect(() => {
     const getPlanets = async () => {
@@ -16,12 +17,12 @@ const PlanetsProvider = ({ children }) => {
       if (!Array.isArray(results)) {
         setError(results);
       } else {
-        setData(results);
         const defaultData = results.map((planet) => {
           // Ref: https://www.w3schools.com/howto/howto_js_remove_property_object.asp
           delete planet.residents;
           return planet;
         });
+        setData(defaultData);
         setFilteredPlanets(defaultData);
         setError('');
         setLoading(false);
@@ -31,9 +32,23 @@ const PlanetsProvider = ({ children }) => {
     getPlanets();
   }, []);
 
+  useEffect(() => {
+    const filterPlanetsByName = (array) => {
+      const formattedName = new RegExp(nameFilter.filterByName.name, 'i');
+      // console.log(formattedName);
+      const planetsFilteredByName = array
+        .filter((planet) => planet.name.match(formattedName));
+      // console.log(planetsFilteredByName);
+      return planetsFilteredByName;
+    };
+
+    const newPlanetsList = filterPlanetsByName(data);
+    setFilteredPlanets(newPlanetsList);
+  }, [data, nameFilter]);
+
   return (
     <PlanetsContext.Provider
-      value={ { data, filteredPlanets, error, loading } }
+      value={ { filteredPlanets, error, loading, setNameFilter } }
     >
       { children }
     </PlanetsContext.Provider>
