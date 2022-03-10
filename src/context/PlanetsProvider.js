@@ -7,6 +7,8 @@ const COLUMN_ENTRIES_INITIAL_STATE = [
   'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water',
 ];
 
+const NUMBER_BASE = 10;
+
 const PlanetsProvider = ({ children }) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState('');
@@ -14,8 +16,20 @@ const PlanetsProvider = ({ children }) => {
   const [filteredPlanets, setFilteredPlanets] = useState([]);
   const [nameFilter, setNameFilter] = useState({ filterByName: { name: '' } });
   // { filterByNumericValues: [{ column, comparison, value }] }
-  // const [numericFilter, setNumericFilter] = useState({ filterByNumericValues: [] });
+  const [numericFilter, setNumericFilter] = useState({ filterByNumericValues: [] });
   const [columnEntries, setColumnEntries] = useState(COLUMN_ENTRIES_INITIAL_STATE);
+
+  const verifyElement = (keyValueStr, operator, valueStr) => {
+    const keyNumber = parseFloat(keyValueStr, NUMBER_BASE);
+    const number = parseFloat(valueStr);
+    console.log('keyNumber: ', keyNumber, ', number: ', number);
+    if (operator === 'maior que') {
+      return (keyNumber > number);
+    } if (operator === 'menor que') {
+      return (keyNumber < number);
+    }
+    return (keyNumber === number);
+  };
 
   useEffect(() => {
     const getPlanets = async () => {
@@ -53,9 +67,35 @@ const PlanetsProvider = ({ children }) => {
     setFilteredPlanets(newPlanetsList);
   }, [data, nameFilter]);
 
+  useEffect(() => {
+    const numericFilterLength = numericFilter.filterByNumericValues.length;
+
+    const filterPlanetByNumericValues = (array) => {
+      const { column, comparison, value } = numericFilter
+        .filterByNumericValues[numericFilterLength - 1];
+      const planetsFilteredByNumericValues = array
+        .filter((planet) => verifyElement(planet[column], comparison, value));
+
+      return planetsFilteredByNumericValues;
+    };
+
+    if (numericFilterLength !== 0) {
+      const newPlanetsList = filterPlanetByNumericValues(data);
+      setFilteredPlanets(newPlanetsList);
+    }
+  }, [data, numericFilter]);
+
   return (
     <PlanetsContext.Provider
-      value={ { filteredPlanets, error, loading, setNameFilter, columnEntries } }
+      value={ {
+        filteredPlanets,
+        error,
+        loading,
+        setNameFilter,
+        columnEntries,
+        setNumericFilter,
+        setColumnEntries,
+      } }
     >
       { children }
     </PlanetsContext.Provider>

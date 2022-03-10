@@ -3,11 +3,11 @@ import PlanetsContext from '../context/PlanetsContext';
 // import PropTypes from 'prop-types';
 
 const Filters = () => {
-  const { setNameFilter, columnEntries } = useContext(PlanetsContext);
+  const { setNameFilter, columnEntries, setNumericFilter } = useContext(PlanetsContext);
   const [inputName, setInputName] = useState('');
   const [column, setColumn] = useState(columnEntries[0]);
   const [comparison, setComparison] = useState('maior que');
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState('0');
 
   useEffect(() => { setNameFilter({ filterByName: { name: inputName } }); },
     [inputName, setNameFilter]);
@@ -36,6 +36,15 @@ const Filters = () => {
         </select>
       </label>
     );
+  };
+
+  const handleFilterBtn = () => {
+    const numericFilter = { column, comparison, value };
+    // console.log(numericFilter);
+    setNumericFilter((prevState) => ({
+      ...prevState,
+      filterByNumericValues: [...prevState.filterByNumericValues, numericFilter],
+    }));
   };
 
   return (
@@ -74,6 +83,13 @@ const Filters = () => {
             onChange={ (e) => setValue(e.target.value) }
           />
         </label>
+        <button
+          type="button"
+          data-testid="button-filter"
+          onClick={ handleFilterBtn }
+        >
+          FILTRAR
+        </button>
       </section>
     </section>
   );
