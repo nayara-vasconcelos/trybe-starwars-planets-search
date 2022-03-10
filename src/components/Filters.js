@@ -5,7 +5,8 @@ import PlanetsContext from '../context/PlanetsContext';
 const Filters = () => {
   const [inputName, setInputName] = useState('');
   const { setNameFilter, columnEntries } = useContext(PlanetsContext);
-  const [selectColumn, setSelectColumn] = useState(columnEntries[0]);
+  const [selectedColumn, setSelectedColumn] = useState(columnEntries[0]);
+  const [selectedComparison, setSelectedComparison] = useState('maior que');
 
   useEffect(() => { setNameFilter({ filterByName: { name: inputName } }); },
     [inputName, setNameFilter]);
@@ -15,7 +16,6 @@ const Filters = () => {
       <option
         key={ entry }
         value={ entry }
-        data-testid={ entry }
       >
         { entry }
       </option>
@@ -23,11 +23,13 @@ const Filters = () => {
 
     return (
       <label htmlFor="column-filter">
+        Coluna
         <select
+          name="coluna"
           id="column-filter"
           data-testid="column-filter"
-          value={ selectColumn }
-          onChange={ (e) => setSelectColumn(e.target.value) }
+          value={ selectedColumn }
+          onChange={ (e) => setSelectedColumn(e.target.value) }
         >
           { options }
         </select>
@@ -49,6 +51,20 @@ const Filters = () => {
       </section>
       <section>
         { renderColumnSelect() }
+        <label htmlFor="comparison-filter">
+          Operador
+          <select
+            name="operador"
+            id="comparison-filter"
+            data-testid="comparison-filter"
+            value={ selectedComparison }
+            onChange={ (e) => setSelectedComparison(e.target.value) }
+          >
+            <option value="maior que">maior que</option>
+            <option value="menor que">menor que</option>
+            <option value="igual a">igual a</option>
+          </select>
+        </label>
       </section>
     </section>
   );
