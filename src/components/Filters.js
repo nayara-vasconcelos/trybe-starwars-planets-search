@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PlanetsContext from '../context/PlanetsContext';
-// import PropTypes from 'prop-types';
 
 const Filters = () => {
-  const { setNameFilter, columnEntries, setNumericFilter } = useContext(PlanetsContext);
+  const {
+    setNameFilter, columnEntries, setColumnEntries, setNumericFilter,
+  } = useContext(PlanetsContext);
   const [inputName, setInputName] = useState('');
   const [column, setColumn] = useState(columnEntries[0]);
   const [comparison, setComparison] = useState('maior que');
@@ -11,6 +12,8 @@ const Filters = () => {
 
   useEffect(() => { setNameFilter({ filterByName: { name: inputName } }); },
     [inputName, setNameFilter]);
+
+  useEffect(() => { setColumn(columnEntries[0]); }, [columnEntries]);
 
   const renderColumnSelect = () => {
     const options = columnEntries.map((entry) => (
@@ -40,11 +43,13 @@ const Filters = () => {
 
   const handleFilterBtn = () => {
     const numericFilter = { column, comparison, value };
-    // console.log(numericFilter);
     setNumericFilter((prevState) => ({
       ...prevState,
       filterByNumericValues: [...prevState.filterByNumericValues, numericFilter],
     }));
+    // console.log(column);
+    setColumnEntries(columnEntries.filter((entry) => entry !== column));
+    setValue('0');
   };
 
   return (
@@ -94,7 +99,5 @@ const Filters = () => {
     </section>
   );
 };
-
-// Filters.propTypes = {};
 
 export default Filters;

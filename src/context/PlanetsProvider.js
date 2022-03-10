@@ -56,10 +56,8 @@ const PlanetsProvider = ({ children }) => {
   useEffect(() => {
     const filterPlanetsByName = (array) => {
       const formattedName = new RegExp(nameFilter.filterByName.name, 'i');
-      // console.log(formattedName);
       const planetsFilteredByName = array
         .filter((planet) => planet.name.match(formattedName));
-      // console.log(planetsFilteredByName);
       return planetsFilteredByName;
     };
 
@@ -70,21 +68,24 @@ const PlanetsProvider = ({ children }) => {
   useEffect(() => {
     const numericFilterLength = numericFilter.filterByNumericValues.length;
 
-    const filterPlanetByNumericValues = (array) => {
-      const { column, comparison, value } = numericFilter
-        .filterByNumericValues[numericFilterLength - 1];
-      const newPlanetsList = array
-        .filter((planet) => verifyElement(planet[column], comparison, value));
+    const filterPlanetsByNumericValues = () => {
+      const newPlanetsList = data
+        .filter((planet) => {
+          const isPlanetFiltered = numericFilter.filterByNumericValues.every((e) => {
+            const { column, comparison, value } = e;
+            return (verifyElement(planet[column], comparison, value));
+          });
 
-      return ({ newPlanetsList, column });
+          return isPlanetFiltered;
+        });
+      // console.log(newPlanetsList);
+      return newPlanetsList;
     };
 
     if (numericFilterLength !== 0) {
-      const { newPlanetsList, column } = filterPlanetByNumericValues(filteredPlanets);
-      setColumnEntries(columnEntries.filter((entry) => entry !== column));
-      setFilteredPlanets(newPlanetsList);
+      setFilteredPlanets(filterPlanetsByNumericValues());
     }
-  }, [numericFilter]);
+  }, [data, numericFilter]);
 
   return (
     <PlanetsContext.Provider
@@ -94,6 +95,7 @@ const PlanetsProvider = ({ children }) => {
         loading,
         setNameFilter,
         columnEntries,
+        setColumnEntries,
         setNumericFilter,
       } }
     >
