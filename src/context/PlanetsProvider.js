@@ -22,7 +22,7 @@ const PlanetsProvider = ({ children }) => {
   const verifyElement = (keyValueStr, operator, valueStr) => {
     const keyNumber = parseFloat(keyValueStr, NUMBER_BASE);
     const number = parseFloat(valueStr);
-    console.log('keyNumber: ', keyNumber, ', number: ', number);
+    // console.log('keyNumber: ', keyNumber, ', number: ', number);
     if (operator === 'maior que') {
       return (keyNumber > number);
     } if (operator === 'menor que') {
@@ -73,14 +73,15 @@ const PlanetsProvider = ({ children }) => {
     const filterPlanetByNumericValues = (array) => {
       const { column, comparison, value } = numericFilter
         .filterByNumericValues[numericFilterLength - 1];
-      const planetsFilteredByNumericValues = array
+      const newPlanetsList = array
         .filter((planet) => verifyElement(planet[column], comparison, value));
 
-      return planetsFilteredByNumericValues;
+      return ({ newPlanetsList, column });
     };
 
     if (numericFilterLength !== 0) {
-      const newPlanetsList = filterPlanetByNumericValues(data);
+      const { newPlanetsList, column } = filterPlanetByNumericValues(data);
+      setColumnEntries(columnEntries.filter((entry) => entry !== column));
       setFilteredPlanets(newPlanetsList);
     }
   }, [data, numericFilter]);
@@ -94,7 +95,6 @@ const PlanetsProvider = ({ children }) => {
         setNameFilter,
         columnEntries,
         setNumericFilter,
-        setColumnEntries,
       } }
     >
       { children }
