@@ -1,9 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PlanetsContext from '../context/PlanetsContext';
 
+const COLUMN_ENTRIES_INITIAL_STATE = [
+  'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water',
+];
+
 const Filters = () => {
   const {
-    setNameFilter, columnEntries, setColumnEntries, setNumericFilter,
+    setNameFilter, columnEntries, setColumnEntries, setNumericFilter, numericFilter,
   } = useContext(PlanetsContext);
   const [inputName, setInputName] = useState('');
   const [column, setColumn] = useState(columnEntries[0]);
@@ -42,14 +46,49 @@ const Filters = () => {
   };
 
   const handleFilterBtn = () => {
-    const numericFilter = { column, comparison, value };
+    const newObj = { column, comparison, value };
     setNumericFilter((prevState) => ({
       ...prevState,
-      filterByNumericValues: [...prevState.filterByNumericValues, numericFilter],
+      filterByNumericValues: [...prevState.filterByNumericValues, newObj],
     }));
     // console.log(column);
     setColumnEntries(columnEntries.filter((entry) => entry !== column));
     setValue('0');
+  };
+
+  const handleRemoveFilter = ({ target }) => {
+    const filters = numericFilter.filterByNumericValues;
+    const newNumericFilter = filters
+      .filter((filter) => filter.column !== target.name);
+    setNumericFilter({ filterByNumericValues: newNumericFilter });
+    setColumnEntries((prevState) => [...prevState, target.name]);
+  };
+
+  const handleRemoveAllFilters = () => {
+    if (numericFilter.filterByNumericValues.length > 0) {
+      setNumericFilter({ filterByNumericValues: [] });
+      setColumnEntries(COLUMN_ENTRIES_INITIAL_STATE);
+    }
+  };
+
+  const renderFiltersList = () => {
+    const filters = numericFilter.filterByNumericValues;
+    const filtersList = filters.map((filter, index) => (
+      <span data-testid="filter" key={ `${filter.column}${index}` }>
+        { /* const { column, comparison, value } = filter */ }
+        { `${Object.values(filter).toString().replace(/,/g, ' ')}` }
+        <button
+          type="button"
+          name={ `${filter.column}` }
+          value={ index }
+          onClick={ handleRemoveFilter }
+        >
+          X
+        </button>
+      </span>
+    ));
+
+    return filtersList;
   };
 
   return (
@@ -94,6 +133,14 @@ const Filters = () => {
           onClick={ handleFilterBtn }
         >
           FILTRAR
+        </button>
+        { (numericFilter.filterByNumericValues.length > 0) && renderFiltersList()}
+        <button
+          type="button"
+          data-testid="button-remove-filters"
+          onClick={ handleRemoveAllFilters }
+        >
+          REMOVER FILTROS
         </button>
       </section>
     </section>

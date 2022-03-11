@@ -84,6 +84,8 @@ const PlanetsProvider = ({ children }) => {
 
     if (numericFilterLength !== 0) {
       setFilteredPlanets(filterPlanetsByNumericValues());
+    } else {
+      setFilteredPlanets(data);
     }
   }, [data, numericFilter]);
 
@@ -93,6 +95,7 @@ const PlanetsProvider = ({ children }) => {
         filteredPlanets,
         error,
         loading,
+        numericFilter,
         setNameFilter,
         columnEntries,
         setColumnEntries,
