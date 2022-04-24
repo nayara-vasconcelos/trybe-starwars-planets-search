@@ -9,20 +9,62 @@ const COLUMN_ENTRIES_INITIAL_STATE = [
 
 const NUMBER_BASE = 10;
 
+const ORDER_INITIAL_STATE = { column: 'population', sort: 'ASC', initial: 'name' };
+
+const sortByKey = (arrayOfObj, key, order) => {
+  // Ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+  const GREATER_THAN = 1;
+  const LESS_THAN = -1;
+  const EQUAL = 0;
+  const knownValues = (key === 'name') ? arrayOfObj : [];
+  const unknownValues = [];
+
+  if (key !== 'name') {
+    arrayOfObj.forEach((e) => {
+      if (e[key].includes('unknown')) {
+        unknownValues.push(e);
+      } else {
+        knownValues.push(e);
+      }
+    });
+  }
+
+  const sortedArray = knownValues.sort((a, b) => {
+    const [numberA, numberB] = key === 'name'
+      ? [a[key], b[key]]
+      : [parseInt(a[key], 10), parseInt(b[key], 10)];
+
+    if (numberA > numberB) {
+      return GREATER_THAN;
+    }
+    if (numberA < numberB) {
+      return LESS_THAN;
+    }
+    return EQUAL;
+  });
+
+  if (order === 'DESC') {
+    sortedArray.reverse();
+  }
+
+  return [...sortedArray, ...unknownValues];
+};
+
 const PlanetsProvider = ({ children }) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [filteredPlanets, setFilteredPlanets] = useState([]);
   const [nameFilter, setNameFilter] = useState({ filterByName: { name: '' } });
-  // { filterByNumericValues: [{ column, comparison, value }] }
   const [numericFilter, setNumericFilter] = useState({ filterByNumericValues: [] });
   const [columnEntries, setColumnEntries] = useState(COLUMN_ENTRIES_INITIAL_STATE);
+  const [order, setOrder] = useState(ORDER_INITIAL_STATE);
+  const [sortedPlanets, setSortedPlanets] = useState([]);
 
   const verifyElement = (keyValueStr, operator, valueStr) => {
     const keyNumber = parseFloat(keyValueStr, NUMBER_BASE);
     const number = parseFloat(valueStr);
-    // console.log('keyNumber: ', keyNumber, ', number: ', number);
+
     if (operator === 'maior que') {
       return (keyNumber > number);
     } if (operator === 'menor que') {
@@ -43,8 +85,9 @@ const PlanetsProvider = ({ children }) => {
           delete planet.residents;
           return planet;
         });
-        setData(defaultData);
-        setFilteredPlanets(defaultData);
+        const sortedData = sortByKey(defaultData, 'name', 'ASC');
+
+        setData(sortedData);
         setError('');
         setLoading(false);
       }
@@ -66,33 +109,42 @@ const PlanetsProvider = ({ children }) => {
   }, [data, nameFilter]);
 
   useEffect(() => {
-    const numericFilterLength = numericFilter.filterByNumericValues.length;
+    const numericFilterByValues = numericFilter.filterByNumericValues;
 
     const filterPlanetsByNumericValues = () => {
       const newPlanetsList = data
         .filter((planet) => {
-          const isPlanetFiltered = numericFilter.filterByNumericValues.every((e) => {
+          const isPlanetFiltered = numericFilterByValues.every((e) => {
             const { column, comparison, value } = e;
             return (verifyElement(planet[column], comparison, value));
           });
 
           return isPlanetFiltered;
         });
-      // console.log(newPlanetsList);
+
       return newPlanetsList;
     };
 
-    if (numericFilterLength !== 0) {
+    if (numericFilterByValues.length > 0) {
       setFilteredPlanets(filterPlanetsByNumericValues());
     } else {
       setFilteredPlanets(data);
     }
   }, [data, numericFilter]);
 
+  useEffect(() => {
+    const [key, type] = (order.initial === 'name')
+      ? [order.initial, 'ASC']
+      : [order.column, order.sort];
+
+    const sortedList = sortByKey(filteredPlanets, key, type);
+    setSortedPlanets(sortedList);
+  }, [order, filteredPlanets]);
+
   return (
     <PlanetsContext.Provider
       value={ {
-        filteredPlanets,
+        sortedPlanets,
         error,
         loading,
         numericFilter,
@@ -100,6 +152,8 @@ const PlanetsProvider = ({ children }) => {
         columnEntries,
         setColumnEntries,
         setNumericFilter,
+        setOrder,
+        order,
       } }
     >
       { children }

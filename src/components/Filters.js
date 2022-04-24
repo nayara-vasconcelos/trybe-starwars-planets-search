@@ -7,19 +7,31 @@ const COLUMN_ENTRIES_INITIAL_STATE = [
 
 const Filters = () => {
   const {
-    setNameFilter, columnEntries, setColumnEntries, setNumericFilter, numericFilter,
+    setNameFilter,
+    columnEntries,
+    setColumnEntries,
+    setNumericFilter,
+    numericFilter,
+    setOrder,
+    order,
   } = useContext(PlanetsContext);
   const [inputName, setInputName] = useState('');
   const [column, setColumn] = useState(columnEntries[0]);
   const [comparison, setComparison] = useState('maior que');
   const [value, setValue] = useState('0');
+  const [orderOption, setOrderOption] = useState('population');
+  const [orderType, setOrderType] = useState('ASC');
 
-  useEffect(() => { setNameFilter({ filterByName: { name: inputName } }); },
-    [inputName, setNameFilter]);
+  useEffect(() => {
+    if (inputName.length > 0 && order.initial !== 'name') {
+      setOrder((prevState) => ({ ...prevState, initial: 'name' }));
+    }
+    setNameFilter({ filterByName: { name: inputName } });
+  }, [inputName, setNameFilter, order, setOrder]);
 
   useEffect(() => { setColumn(columnEntries[0]); }, [columnEntries]);
 
-  const renderColumnSelect = () => {
+  const renderColumnSelect = (name, testId, selectValue, callback) => {
     const options = columnEntries.map((entry) => (
       <option
         key={ entry }
@@ -31,13 +43,13 @@ const Filters = () => {
 
     return (
       <label htmlFor="column-filter">
-        Coluna
+        { name.toUpperCase() }
         <select
-          name="coluna"
-          id="column-filter"
-          data-testid="column-filter"
-          value={ column }
-          onChange={ (e) => setColumn(e.target.value) }
+          name={ name }
+          id={ testId }
+          data-testid={ testId }
+          value={ selectValue }
+          onChange={ (e) => callback(e.target.value) }
         >
           { options }
         </select>
@@ -47,11 +59,12 @@ const Filters = () => {
 
   const handleFilterBtn = () => {
     const newObj = { column, comparison, value };
+    if (inputName.length > 0) { setInputName(''); }
     setNumericFilter((prevState) => ({
       ...prevState,
       filterByNumericValues: [...prevState.filterByNumericValues, newObj],
     }));
-    // console.log(column);
+
     setColumnEntries(columnEntries.filter((entry) => entry !== column));
     setValue('0');
   };
@@ -75,7 +88,6 @@ const Filters = () => {
     const filters = numericFilter.filterByNumericValues;
     const filtersList = filters.map((filter, index) => (
       <span data-testid="filter" key={ `${filter.column}${index}` }>
-        { /* const { column, comparison, value } = filter */ }
         { `${Object.values(filter).toString().replace(/,/g, ' ')}` }
         <button
           type="button"
@@ -91,6 +103,12 @@ const Filters = () => {
     return filtersList;
   };
 
+  const handleOrderBtn = () => {
+    setOrder((prevState) => (
+      { ...prevState, column: orderOption, sort: orderType, initial: '' }
+    ));
+  };
+
   return (
     <section>
       <section>
@@ -104,9 +122,9 @@ const Filters = () => {
         </label>
       </section>
       <section>
-        { renderColumnSelect() }
+        { renderColumnSelect('coluna', 'column-filter', column, setColumn) }
         <label htmlFor="comparison-filter">
-          Operador
+          OPERADOR
           <select
             name="operador"
             id="comparison-filter"
@@ -141,6 +159,38 @@ const Filters = () => {
           onClick={ handleRemoveAllFilters }
         >
           REMOVER FILTROS
+        </button>
+      </section>
+      <section>
+        { renderColumnSelect('ordenar', 'column-sort', orderOption, setOrderOption) }
+        <label htmlFor="column-sort-input-asc">
+          <input
+            type="radio"
+            data-testid="column-sort-input-asc"
+            id="column-sort-input-asc"
+            name="order-input"
+            value="ASC"
+            onChange={ (e) => setOrderType(e.target.value) }
+          />
+          ASCENDENTE
+        </label>
+        <label htmlFor="column-sort-input-desc">
+          <input
+            type="radio"
+            data-testid="column-sort-input-desc"
+            id="column-sort-input-desc"
+            name="order-input"
+            value="DESC"
+            onChange={ (e) => setOrderType(e.target.value) }
+          />
+          DESCENDENTE
+        </label>
+        <button
+          type="button"
+          data-testid="column-sort-button"
+          onClick={ handleOrderBtn }
+        >
+          ORDENAR
         </button>
       </section>
     </section>

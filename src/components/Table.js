@@ -10,10 +10,10 @@ const capitalizeFirstLetter = (string) => {
 };
 
 const Table = () => {
-  const { filteredPlanets } = useContext(PlanetsContext);
+  const { sortedPlanets } = useContext(PlanetsContext);
 
   const renderTableHeader = () => {
-    const tableHeader = Object.keys(filteredPlanets[0])
+    const tableHeader = Object.keys(sortedPlanets[0])
       .map((planetKey) => {
         const title = planetKey.replace('_', ' ').split(' ')
           .map(capitalizeFirstLetter).join(' ');
@@ -24,7 +24,7 @@ const Table = () => {
   };
 
   const renderTableRows = () => {
-    const tableRows = filteredPlanets.map((planet, index) => {
+    const tableRows = sortedPlanets.map((planet, index) => {
       const filmsLinks = planet.films.map((film) => (
         <a
           key={ film }
@@ -40,12 +40,18 @@ const Table = () => {
         filmsLinks,
         ...planetValues.slice(FILMS_INDEX + 1)];
 
-      const row = cells.map((cell) => (
-        <td key={ cell }>{ cell }</td>
-      ));
+      const row = cells.map((cell, i) => {
+        if (i === 0) {
+          return (<td data-testid="planet-name" key={ cell }>{ cell }</td>);
+        }
+        return (<td key={ cell }>{ cell }</td>);
+      });
 
       return (
-        <tr key={ `${index}_${planet.name}` } id={ planet.name }>
+        <tr
+          key={ `${index}_${planet.name}` }
+          id={ planet.name }
+        >
           { row }
         </tr>
       );
@@ -59,11 +65,11 @@ const Table = () => {
       <table>
         <thead>
           <tr>
-            { (filteredPlanets.length > 0) && renderTableHeader() }
+            { (sortedPlanets.length > 0) && renderTableHeader() }
           </tr>
         </thead>
         <tbody>
-          { (filteredPlanets.length > 0) && renderTableRows() }
+          { (sortedPlanets.length > 0) && renderTableRows() }
         </tbody>
       </table>
     </main>
