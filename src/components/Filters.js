@@ -170,6 +170,7 @@ const Filters = () => {
             id="column-sort-input-asc"
             name="order-input"
             value="ASC"
+            checked={ orderType === 'ASC' }
             onChange={ (e) => setOrderType(e.target.value) }
           />
           ASCENDENTE
@@ -181,6 +182,7 @@ const Filters = () => {
             id="column-sort-input-desc"
             name="order-input"
             value="DESC"
+            checked={ orderType === 'DESC' }
             onChange={ (e) => setOrderType(e.target.value) }
           />
           DESCENDENTE
