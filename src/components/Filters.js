@@ -25,14 +25,18 @@ const Filters = () => {
   useEffect(() => {
     if (inputName.length > 0 && order.initial !== 'name') {
       setOrder((prevState) => ({ ...prevState, initial: 'name' }));
+      setNameFilter({ filterByName: { name: inputName } });
     }
-    setNameFilter({ filterByName: { name: inputName } });
+
+    if (order.initial === 'name') {
+      setNameFilter({ filterByName: { name: inputName } });
+    }
   }, [inputName, setNameFilter, order, setOrder]);
 
   useEffect(() => { setColumn(columnEntries[0]); }, [columnEntries]);
 
-  const renderColumnSelect = (name, testId, selectValue, callback) => {
-    const options = columnEntries.map((entry) => (
+  const renderColumnSelect = ({ entries, name, testId, selectValue, callback }) => {
+    const options = entries.map((entry) => (
       <option
         key={ entry }
         value={ entry }
@@ -81,6 +85,7 @@ const Filters = () => {
     if (numericFilter.filterByNumericValues.length > 0) {
       setNumericFilter({ filterByNumericValues: [] });
       setColumnEntries(COLUMN_ENTRIES_INITIAL_STATE);
+      setOrder((prevState) => ({ ...prevState, initial: 'name' }));
     }
   };
 
@@ -122,7 +127,13 @@ const Filters = () => {
         </label>
       </section>
       <section>
-        { renderColumnSelect('coluna', 'column-filter', column, setColumn) }
+        { renderColumnSelect({
+          entries: columnEntries,
+          name: 'coluna',
+          testId: 'column-filter',
+          selectValue: column,
+          callback: setColumn,
+        }) }
         <label htmlFor="comparison-filter">
           OPERADOR
           <select
@@ -162,7 +173,13 @@ const Filters = () => {
         </button>
       </section>
       <section>
-        { renderColumnSelect('ordenar', 'column-sort', orderOption, setOrderOption) }
+        { renderColumnSelect({
+          entries: COLUMN_ENTRIES_INITIAL_STATE,
+          name: 'ordenar',
+          testId: 'column-sort',
+          selectValue: orderOption,
+          callback: setOrderOption,
+        }) }
         <label htmlFor="column-sort-input-asc">
           <input
             type="radio"
