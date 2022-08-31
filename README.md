@@ -1,4 +1,4 @@
-# Trybe Star Wars Planet Search
+# Trybe Star Wars Planets Search
 
 **Status:** Finalizado em Abril de 2022.
 
